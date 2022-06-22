@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="BoardSpace">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="boardVO" type="board.service.BoardVO"/>
+
+	<insert id="boardDAO.insertNBoard">
+		INSERT INTO test3(unq, ym, admi_nm, sensor_nm, avrg_tp, avrg_hd, 
+				avrg_ulfptc_dnsty, avrg_minudust_dnsty, avrg_ulvry_idex)
+				VALUES(nextval('test3_unq_seq'),
+					   #ym#,
+					   #admi_nm#,
+					   #sensor_nm#,
+					   #avrg_tp#,
+					   #avrg_hd#,
+					   #avrg_ulfptc_dnsty#,
+					   #avrg_minudust_dnsty#,
+					   #avrg_ulvry_idex#)
+	</insert>
+	
+	<!-- List / HashMap -->
+	<select id="boardDAO.selectNBoardList" resultClass="egovMap">
+		
+		SELECT b.* FROM (
+			SELECT (ROW_NUMBER() OVER()) as rn, a.* FROM(
+				SELECT unq,
+					   ym,
+					   admi_nm,
+					   sensor_nm,
+					   avrg_tp,
+					   avrg_hd,
+					   avrg_ulfptc_dnsty,
+					   avrg_minudust_dnsty,
+					   avrg_ulvry_idex
+				FROM   test3
+				<isNotNull property="searchGubun">
+					<isNotNull property="searchText">
+					   WHERE $searchGubun$ like '%$searchText$%'
+					</isNotNull>
+				</isNotNull>
+				ORDER BY unq DESC ) a ) b
+		WHERE rn >= #startIndex# and rn <![CDATA[<=]]> #endIndex#				
+	
+	</select>
+	
+	<select id="boardDAO.selectNBoardTotal" resultClass="java.lang.Integer">
+		
+		SELECT COUNT(*) TOTAL FROM TEST3
+			<isNotNull property="searchGubun">
+				<isNotNull property="searchText">
+					WHERE $searchGubun$ like '%$searchText$%'
+				</isNotNull>
+			</isNotNull>
+	
+	</select>
+	
+	<select id="boardDAO.selectNBoardDetail" resultClass="boardVO">
+		select unq,
+			   ym,
+			   admi_nm,
+			   sensor_nm,
+			   avrg_tp,
+			   avrg_hd,
+			   avrg_ulfptc_dnsty,
+			   avrg_minudust_dnsty,
+			   avrg_ulvry_idex
+		from   test3
+		where unq=#unq#
+	</select>
+	
+	<update id="boardDAO.updateNBoard">
+		UPDATE test3 SET
+				 ym = #ym#,
+			     admi_nm = #admi_nm#,
+			     sensor_nm = #sensor_nm#,
+			     avrg_tp = #avrg_tp#,
+			     avrg_hd = #avrg_hd#,
+			     avrg_ulfptc_dnsty = #avrg+ulfptc_dnsty#,
+			     avrg_minudust_dnsty,
+			     avrg_ulvry_idex
+	</update>
+	
+	
+
+</sqlMap>
